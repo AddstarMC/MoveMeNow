@@ -1,7 +1,6 @@
 package net.craftminecraft.bungee.movemenow;
 
 import java.util.Iterator;
-import net.md_5.bungee.api.ReconnectHandler;
 
 import net.md_5.bungee.api.config.ServerInfo;
 
@@ -37,7 +36,13 @@ public class PlayerListener implements Listener {
             }
         }
 
-        ServerInfo kickTo = this.plugin.getProxy().getServerInfo(plugin.getConfig().servername);
+        ServerInfo kickTo;
+
+        if (plugin.getConfig().servername.equals("reconnect")) {
+            kickTo = plugin.getProxy().getReconnectHandler().getServer(ev.getPlayer());
+        } else {
+            kickTo = this.plugin.getProxy().getServerInfo(plugin.getConfig().servername);
+        }
 
         // Avoid the loop
         if (kickedFrom != null && kickedFrom.equals(kickTo)) {
