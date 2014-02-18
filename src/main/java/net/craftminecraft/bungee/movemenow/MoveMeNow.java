@@ -17,6 +17,7 @@ public class MoveMeNow extends Plugin {
     @Override
     public void onEnable() {
         instance = this;
+        loadConfig();
         this.getProxy().getPluginManager().registerListener(this, new PlayerListener(this));
         this.getProxy().getPluginManager().registerCommand(this, new ReloadCommand(this));
     }
