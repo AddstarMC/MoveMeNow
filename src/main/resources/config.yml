@@ -1,0 +1,6 @@
+mode: blacklist
+servername: lobby
+list:
+- ban
+- kick
+message: "&3[MoveMeNow] &4You have been moved : %kickmsg%"

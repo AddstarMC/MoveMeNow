@@ -1,7 +1,10 @@
 package net.craftminecraft.bungee.movemenow;
 
 import java.util.Iterator;
+import java.util.List;
 
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 
 import net.md_5.bungee.api.plugin.Listener;
@@ -20,61 +23,51 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onServerKickEvent(ServerKickEvent ev) {
-        // Protection against NullPointerException
+        ServerInfo kickedFrom;
 
-        ServerInfo kickedFrom = null;
-
-        if (ev.getPlayer().getServer() != null) {
+        if (ev.getPlayer().getServer() != null)
             kickedFrom = ev.getPlayer().getServer().getInfo();
-        } else if (this.plugin.getProxy().getReconnectHandler() != null) {// If first server and recohandler
+        else if (this.plugin.getProxy().getReconnectHandler() != null) // If first server and recohandler
             kickedFrom = this.plugin.getProxy().getReconnectHandler().getServer(ev.getPlayer());
-        } else { // If first server and no recohandler
+        else {  // If first server and no recohandler
             kickedFrom = AbstractReconnectHandler.getForcedHost(ev.getPlayer().getPendingConnection());
-            if (kickedFrom == null) // Can still be null if vhost is null... 
-            {
+            if (kickedFrom == null) // Can still be null if vhost is null...
                 kickedFrom = ProxyServer.getInstance().getServerInfo(ev.getPlayer().getPendingConnection().getListener().getDefaultServer());
-            }
         }
 
         ServerInfo kickTo;
 
-        if (plugin.getConfig().servername.equals("reconnect")) {
+        if (MoveMeNow.getConfig().getString("servername").equals("reconnect"))
             kickTo = plugin.getProxy().getReconnectHandler().getServer(ev.getPlayer());
-        } else {
-            kickTo = this.plugin.getProxy().getServerInfo(plugin.getConfig().servername);
-        }
+        else
+            kickTo = this.plugin.getProxy().getServerInfo(MoveMeNow.getConfig().getString("servername"));
 
-        // Avoid the loop
-        if (kickedFrom != null && kickedFrom.equals(kickTo)) {
+        if (kickedFrom != null && kickedFrom.equals(kickTo))
             return;
-        }
 
-        Iterator<String> it = this.plugin.getConfig().list.iterator();
-        if (this.plugin.getConfig().mode.equals("whitelist")) {
-            while (it.hasNext()) {
-                String next = it.next();
-                if (ev.getKickReason().contains(next)) {
+        String reason = BaseComponent.toLegacyText(ev.getKickReasonComponent());
+        String[] moveMsg = MoveMeNow.getConfig().getString("message").replace("%kickmsg%", reason).split("\n");
+
+        List<String> keywords = MoveMeNow.getConfig().getStringList("list");
+        if (MoveMeNow.getConfig().getString("mode").equals("whitelist")) {
+            for (String keyword : keywords)
+                if (reason.contains(keyword)) {
                     ev.setCancelled(true);
                     ev.setCancelServer(kickTo);
-                    if (plugin.getConfig().sendmovemsg) {
-                        ev.getPlayer().sendMessages(plugin.getConfig().parsemovemsg(ev.getKickReason()));
-                    }
-
+                    if (!(moveMsg.length == 1 && moveMsg[0].equals("")))
+                        for (String line : moveMsg)
+                            ev.getPlayer().sendMessage(TextComponent.fromLegacyText(line));
                     break; // no need to keep this up !
                 }
-            }
         } else {
-            while (it.hasNext()) {
-                String next = it.next();
-                if (ev.getKickReason().contains(next)) {
+            for (String keyword : keywords)
+                if (reason.contains(keyword))
                     return;
-                }
-            }
             ev.setCancelled(true);
             ev.setCancelServer(kickTo);
-            if (plugin.getConfig().sendmovemsg) {
-                ev.getPlayer().sendMessages(plugin.getConfig().parsemovemsg(ev.getKickReason()));
-            }
+            if (!(moveMsg.length == 1 && moveMsg[0].equals("")))
+                for (String line : moveMsg)
+                    ev.getPlayer().sendMessage(TextComponent.fromLegacyText(line));
         }
     }
 }

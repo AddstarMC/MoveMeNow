@@ -1,41 +1,55 @@
 package net.craftminecraft.bungee.movemenow;
 
+import com.google.common.io.ByteStreams;
 import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.config.Configuration;
+import net.md_5.bungee.config.ConfigurationProvider;
+import net.md_5.bungee.config.YamlConfiguration;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
 
 public class MoveMeNow extends Plugin {
-	MainConfig config;
-	@Override
-	public void onEnable() {
-        loadConfig();
-		this.getProxy().getPluginManager().registerListener(this, new PlayerListener(this));
-		this.getProxy().getPluginManager().registerCommand(this, new ReloadCommand(this));
-	}
+    private static Configuration config;
+    private static Plugin instance;
 
-	@Override
-	public void onDisable() {
-		config = null;
-	}
-	
-	public MainConfig getConfig() {
-		return this.config;
-	}
+    @Override
+    public void onEnable() {
+        instance = this;
+        this.getProxy().getPluginManager().registerListener(this, new PlayerListener(this));
+        this.getProxy().getPluginManager().registerCommand(this, new ReloadCommand(this));
+    }
 
-    public void loadConfig() {
-        DumperOptions options = new DumperOptions();
-        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-        Yaml yaml = new Yaml(options);
+    public static void loadConfig() {
         try {
-            config = yaml.loadAs(new FileInputStream(new File(getDataFolder(), "config.yml")), MainConfig.class);
-        } catch (FileNotFoundException e) {
-            config = new MainConfig();
-            try {
-                yaml.dump(config, new FileWriter(new File(getDataFolder(), "config.yml")));
-            } catch (IOException ignored) {
-            }
+            config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(
+                    loadResource(instance, "config.yml"));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+    }
+
+    public static Configuration getConfig() {
+        return config;
+    }
+
+    public static File loadResource(Plugin plugin, String resource) {
+        File folder = plugin.getDataFolder();
+        if (!folder.exists())
+            folder.mkdir();
+        File resourceFile = new File(folder, resource);
+        try {
+            if (!resourceFile.exists()) {
+                resourceFile.createNewFile();
+                try (InputStream in = plugin.getResourceAsStream(resource);
+                     OutputStream out = new FileOutputStream(resourceFile)) {
+                    ByteStreams.copy(in, out);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return resourceFile;
     }
 }
