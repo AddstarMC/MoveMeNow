@@ -3,6 +3,7 @@ package net.craftminecraft.bungee.movemenow;
 import java.util.Iterator;
 import java.util.List;
 
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -56,7 +57,8 @@ public class PlayerListener implements Listener {
                     ev.setCancelServer(kickTo);
                     if (!(moveMsg.length == 1 && moveMsg[0].equals("")))
                         for (String line : moveMsg)
-                            ev.getPlayer().sendMessage(TextComponent.fromLegacyText(line));
+                            ev.getPlayer().sendMessage(TextComponent.fromLegacyText(
+                                    ChatColor.translateAlternateColorCodes('&' ,line)));
                     break; // no need to keep this up !
                 }
         } else {
@@ -67,7 +69,8 @@ public class PlayerListener implements Listener {
             ev.setCancelServer(kickTo);
             if (!(moveMsg.length == 1 && moveMsg[0].equals("")))
                 for (String line : moveMsg)
-                    ev.getPlayer().sendMessage(TextComponent.fromLegacyText(line));
+                    ev.getPlayer().sendMessage(TextComponent.fromLegacyText(
+                            ChatColor.translateAlternateColorCodes('&', line)));
         }
     }
 }
