@@ -9,21 +9,18 @@ public class ReloadCommand extends Command {
     MoveMeNow plugin;
 
     public ReloadCommand(MoveMeNow plugin) {
-        super("mmn", "movemenow.admin", "movemenow");
+        super("mmn", "movemenow.admin");
         this.plugin = plugin;
     }
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        TextComponent message = new TextComponent();
         if (args.length != 1) {
-            message.setText("/mmn reload");
-            sender.sendMessage(message);
-            return;
+            sender.sendMessage(new TextComponent("Please use /mmn reload."));
         }
         switch (args[0]) {
             case "reload":
-                MoveMeNow.loadConfig();
+                plugin.loadConfig();
                 message.setColor(ChatColor.GREEN);
                 message.setText("[MoveMeNow] Config reloaded");
                 sender.sendMessage(message);

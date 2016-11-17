@@ -5,11 +5,11 @@
     </properties>
     <groupId>net.craftminecraft.bungee</groupId>
     <artifactId>movemenow</artifactId>
-    <version>1.1</version>
+    <version>1.2</version>
     <repositories>
         <repository>
             <id>dev-cmc</id>
-            <url>http://repo.craftminecraft.net/content/groups/public/</url>
+            <url>http://nexus.cmc.im/content/groups/public/</url>
         </repository>
     </repositories>
     <dependencies>
