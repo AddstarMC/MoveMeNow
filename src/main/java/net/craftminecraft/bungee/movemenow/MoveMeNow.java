@@ -1,13 +1,9 @@
 package net.craftminecraft.bungee.movemenow;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 
 import com.google.common.io.ByteStreams;
-import net.md_5.bungee.api.config.ServerInfo;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;

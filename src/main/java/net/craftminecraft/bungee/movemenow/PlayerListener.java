@@ -1,10 +1,8 @@
 package net.craftminecraft.bungee.movemenow;
 
 import java.util.Iterator;
-import java.util.List;
 
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.ReconnectHandler;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -28,7 +26,7 @@ public class PlayerListener implements Listener {
     public void onServerKickEvent(ServerKickEvent ev) {
         // Protection against NullPointerException
 
-        ServerInfo kickedFrom = null;
+        ServerInfo kickedFrom;
 
         if (ev.getPlayer().getServer() != null) {
             kickedFrom = ev.getPlayer().getServer().getInfo();
@@ -36,28 +34,28 @@ public class PlayerListener implements Listener {
             kickedFrom = this.plugin.getProxy().getReconnectHandler().getServer(ev.getPlayer());
         } else { // If first server and no recohandler
             kickedFrom = AbstractReconnectHandler.getForcedHost(ev.getPlayer().getPendingConnection());
-            if (kickedFrom == null) // Can still be null if vhost is null... 
+            if (kickedFrom == null) // Can still be null if vhost is null... so we return the highest priority server.
             {
-                kickedFrom = ProxyServer.getInstance().getServerInfo(ev.getPlayer().getPendingConnection().getListener().getDefaultServer());
+                kickedFrom = ProxyServer.getInstance().getServerInfo(ev.getPlayer().getPendingConnection().getListener().getServerPriority().get(0));
             }
         }
 
-        ServerInfo kickTo = this.plugin.getProxy().getServerInfo(plugin.getConfig().getString("servername"));
+        ServerInfo kickTo;
 
-        if (MoveMeNow.getConfig().getString("servername").equals("reconnect"))
+        if (plugin.getConfig().getString("servername").equals("reconnect"))
             kickTo = plugin.getProxy().getReconnectHandler().getServer(ev.getPlayer());
         else
-            kickTo = this.plugin.getProxy().getServerInfo(MoveMeNow.getConfig().getString("servername"));
+            kickTo = this.plugin.getProxy().getServerInfo(plugin.getConfig().getString("servername"));
 
         if (kickedFrom != null && kickedFrom.equals(kickTo))
             return;
-        }
+
 
         String reason = BaseComponent.toLegacyText(ev.getKickReasonComponent());
         String[] moveMsg = plugin.getConfig().getString("message").replace("%kickmsg%", reason).split("\n");
 
         Iterator<String> it = this.plugin.getConfig().getStringList("list").iterator();
-        if (this.plugin.getConfig().getString("mode").equals("whitelist")) {
+        if (plugin.getConfig().getString("mode").equals("whitelist")) {
             while (it.hasNext()) {
                 String next = it.next();
                 if (reason.contains(next)) {

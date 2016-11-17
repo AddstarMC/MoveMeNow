@@ -15,8 +15,11 @@ public class ReloadCommand extends Command {
 
     @Override
     public void execute(CommandSender sender, String[] args) {
+        TextComponent message = new TextComponent();
         if (args.length != 1) {
-            sender.sendMessage(new TextComponent("Please use /mmn reload."));
+            message.setText("Please use /mmn reload.");
+            sender.sendMessage(message);
+            return;
         }
         switch (args[0]) {
             case "reload":
